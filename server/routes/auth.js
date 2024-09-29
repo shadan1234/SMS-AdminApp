@@ -151,7 +151,10 @@ authRouter.get('/', auth, coordinatorAccess, async (req, res) => {
         const token = req.header('x-auth-token');
         if (!user) return res.status(404).json({ message: 'User not found.' });
 
-        res.json({user,token});
+        const { _id, name, role, password } = user;
+
+        // Send the fields along with the token
+        res.json({ id: _id, name, role, token, password });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error.' });
