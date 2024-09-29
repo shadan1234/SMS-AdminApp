@@ -8,8 +8,8 @@ const authRouter = require("./routes/auth");
 // Load environment variables
 dotenv.config();
 
-const PORT =  3000; 
-const dbUrl = "mongodb+srv://shadanhussain2004:DxFZ0d21x2guzL11@cluster0.eqk5ndv.mongodb.net/?retryWrites=true&w=majority";
+const PORT = process.env.PORT || 3000; 
+const dbUrl = process.env.DATABASE_URL;
 
 // Ensure DATABASE_URL is loaded
 if (!dbUrl) {
