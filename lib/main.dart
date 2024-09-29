@@ -32,37 +32,42 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final AuthService authService = AuthService();
- 
-
-  @override
-  void initState() {
-    super.initState();
-    authService.checkTokenValidity(context);
-  }
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
    
     return MaterialApp(
-      
       debugShowCheckedModeBanner: false,
       title: 'Event-Management',
       theme: AppTheme.themeData,
       onGenerateRoute: (settings) => generateRoute(settings),
-      home:  _getHomeScreen(),
+      home: Scaffold(
+        body: Builder(
+          builder: (context) {
+            return _getHomeScreen(context);
+          },
+        ),
+      ),
     );
   }
-}
- Widget _getHomeScreen() {
-    return Consumer<UserProvider>(
-      builder: (context, userProvider, _) {
-        if (userProvider.user.token.isNotEmpty) {
-         return BottomBar();
+
+  Widget _getHomeScreen(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: authService.checkTokenValidity(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          return  AuthScreen();
+          if (snapshot.hasData && snapshot.data == true) {
+            return BottomBar(); // User is logged in
+          } else {
+            return AuthScreen(); // User needs to log in
+          }
         }
       },
     );
   }
-
+}

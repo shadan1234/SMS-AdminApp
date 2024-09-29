@@ -88,60 +88,72 @@ class AuthService {
   }
 
   // Check token validity
-  Future<bool> checkTokenValidity(BuildContext context) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('x-auth-token');
-      if (token == null || token.isEmpty) {
-        return false;
-      }
-
-      var tokenRes = await http.post(
-        Uri.parse('$uri/tokenIsValid'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'x-auth-token': token,
-        },
-      );
-
-      var response = jsonDecode(tokenRes.body);
-
-      if (response == true) {
-        // If token is valid, fetch user data
-        await fetchUserData(context);
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      showSnackBar(context, e.toString());
+Future<bool> checkTokenValidity(BuildContext context) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('x-auth-token');
+    if (token == null || token.isEmpty) {
+      print("Token is null or empty");
       return false;
     }
+
+    var tokenRes = await http.post(
+      Uri.parse('$uri/tokenIsValid'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-auth-token': token,
+      },
+    );
+
+    var response = jsonDecode(tokenRes.body);
+    print("Token validity response: $response");
+
+    if (response == true) {
+      await fetchUserData(context);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    showSnackBar(context, e.toString());
+    print("Error in checkTokenValidity: $e");
+    return false;
   }
+}
 
-  // Fetch user data
-  Future<void> fetchUserData(BuildContext context) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('x-auth-token');
-      if (token == null || token.isEmpty) {
-        return;
-      }
+// Fetch user data
+Future<void> fetchUserData(BuildContext context) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('x-auth-token');
+    if (token == null || token.isEmpty) {
+      print("Token is null or empty");
+      return;
+    }
 
-      http.Response userRes = await http.get(
-        Uri.parse('$uri/'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'x-auth-token': token,
-        },
-      );
+    http.Response userRes = await http.get(
+      Uri.parse('$uri/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-auth-token': token,
+      },
+    );
 
+    print("User data response: ${userRes.body}");
+    
+    if (userRes.statusCode == 200) {
       var userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.setUser(userRes.body);
-    } catch (e) {
-      showSnackBar(context, e.toString());
+    } else {
+      showSnackBar(context, 'Failed to fetch user data');
+      print("Error fetching user data: ${userRes.statusCode}");
     }
+  } catch (e) {
+    showSnackBar(context, e.toString());
+    print("Error in fetchUserData: $e");
   }
+}
+
 
   // Log out user
   Future<void> logOut(BuildContext context) async {

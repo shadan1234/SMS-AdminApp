@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Importing intl package for date formatting
+import 'package:provider/provider.dart';
 import 'package:sms_admin/models/message.dart';
+import 'package:sms_admin/user_provider.dart';
 
 class MessageItem extends StatelessWidget {
   final Message message;
@@ -8,7 +11,8 @@ class MessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isSender = message.name == "You"; // Change this condition based on your logic
+   final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final isSender = message.name == userProvider.user.name; // Change this condition based on your logic
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -25,21 +29,28 @@ class MessageItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Sender's name
                 Text(
                   message.name ?? 'Unknown User',
                   style: TextStyle(
+                    fontSize: 12, // Smaller font size for name
                     fontWeight: FontWeight.bold,
                     color: isSender ? Colors.white : Colors.black,
                   ),
                 ),
                 const SizedBox(height: 5),
+                // Main message
                 Text(
                   message.message ?? '',
-                  style: TextStyle(color: isSender ? Colors.white : Colors.black),
+                  style: TextStyle(
+                    fontSize: 16, // Larger font size for the main message
+                    color: isSender ? Colors.white : Colors.black,
+                  ),
                 ),
                 const SizedBox(height: 5),
+                // Formatted timestamp
                 Text(
-                  message.timestamp?.toString() ?? '',
+                  _formatTimestamp(message.timestamp),
                   style: TextStyle(
                     color: isSender ? Colors.white70 : Colors.black54,
                     fontSize: 12,
@@ -51,5 +62,11 @@ class MessageItem extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Function to format the timestamp
+  String _formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return '';
+    return DateFormat('yyyy-MM-dd – kk:mm').format(timestamp); // Format: YYYY-MM-DD - HH:MM
   }
 }

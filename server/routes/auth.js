@@ -148,9 +148,10 @@ authRouter.post('/tokenIsValid', async (req, res) => {
 authRouter.get('/', auth, coordinatorAccess, async (req, res) => {
     try {
         const user = await User.findById(req.user.userId);
+        const token = req.header('x-auth-token');
         if (!user) return res.status(404).json({ message: 'User not found.' });
 
-        res.json(user);
+        res.json({user,token});
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error.' });

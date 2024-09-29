@@ -32,11 +32,11 @@ class _MessageScreenState extends State<MessageScreen> {
         _messages = messages;
         _isLoading = false;
       });
-      print(messages);
-      print('bale');
-      for(int i=0;i<messages.length;i++){
-        print(messages[i]);
-      }
+      // print(messages);
+      // print('bale');
+      // for(int i=0;i<messages.length;i++){
+      //   print(messages[i]);
+      // }
     } catch (e) {
       setState(() {
         _isLoading = false;

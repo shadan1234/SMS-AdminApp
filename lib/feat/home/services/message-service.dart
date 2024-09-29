@@ -108,7 +108,7 @@ Future<List<Message>> fetchMessages() async {
     List<Message> messages = (data['messages'] as List)
         .map((message) => Message.fromJson(message))
         .toList();
-        print(messages);
+        // print(messages);
     return messages;
   } else {
     throw Exception('Failed to load messages');
