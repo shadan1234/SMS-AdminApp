@@ -29,8 +29,9 @@ class SignupPage extends StatelessWidget {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
+      body: ListView(
+
+        children:[ Container(
           padding: EdgeInsets.symmetric(horizontal: 40),
           height: MediaQuery.of(context).size.height - 50,
           width: double.infinity,
@@ -128,7 +129,7 @@ class SignupPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ]),
     );
   }
 

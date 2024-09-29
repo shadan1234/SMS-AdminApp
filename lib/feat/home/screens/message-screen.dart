@@ -1,96 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sms_admin/feat/home/services/message-service.dart';
+// import 'package:sms_admin/services/message_service.dart';
+import 'package:sms_admin/models/message.dart';
+import 'package:sms_admin/user_provider.dart';
 
 class MessageScreen extends StatefulWidget {
-  const MessageScreen({super.key});
-
   @override
   _MessageScreenState createState() => _MessageScreenState();
 }
 
 class _MessageScreenState extends State<MessageScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  List<String> messages = []; // Sample message list
+  final MessageService _messageService = MessageService();
+  List<Message> _messages = [];
+  bool _isLoading = true;
 
   @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadMessages();
   }
 
-  void _sendMessage() {
-    final String messageText = _messageController.text.trim();
-    if (messageText.isNotEmpty) {
+  Future<void> _loadMessages() async {
+    try {
+      final messages = await _messageService.fetchMessages();
       setState(() {
-        messages.insert(0, messageText); // Adding new messages at the beginning of the list
+        _messages = messages;
+        _isLoading = false;
       });
-      _messageController.clear();
-      _scrollController.animateTo(
-        0.0, // Scroll to the bottom when a new message is added
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error loading messages: $e");
+    }
+  }
 
-      // Call the message service to send the message to MongoDB and SMS
-      MessageService().sendMessage(messageText,context);
+  Future<void> _sendMessage() async {
+    String messageText = _messageController.text.trim();
+    if (messageText.isEmpty) return;
+
+    try {
+      await _messageService.sendMessage(messageText, context);
+      _messageController.clear();
+      // Refresh message list after sending a message
+      _loadMessages();
+    } catch (e) {
+      print("Error sending message: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: Text('Messages'),
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              reverse: true, // New messages appear at the bottom
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(10),
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _messages.isEmpty
+                    ? Center(child: Text('No messages found.'))
+                    : ListView.builder(
+                        reverse: true, // Reverse scroll to show latest messages first
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message = _messages[index];
+                          return ListTile(
+                            title: Text(message.name ?? 'Unknown User'),
+                            subtitle: Text(message.message ?? ''),
+                            trailing: Text(message.timestamp?.toString() ?? ''),
+                          );
+                        },
                       ),
-                      child: Text(
-                        messages[index],
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
           ),
-          Container(
-            margin: EdgeInsets.all(8),
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: 'Type a message',
-                      border: OutlineInputBorder()
+                    decoration: InputDecoration(
+                      hintText: 'Enter message...',
+                      border: OutlineInputBorder(),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: Icon(Icons.send),
                   onPressed: _sendMessage,
                 ),
               ],

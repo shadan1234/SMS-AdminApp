@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import 'package:sms_admin/constants/global.dart';
+import 'package:sms_admin/models/message.dart';
 import 'package:sms_admin/user_provider.dart';
 
 class MessageService {
@@ -19,6 +20,7 @@ class MessageService {
     // Send SMS to all users
     await _sendSmsToAllUsers(message);
   }
+
 
   Future<void> _sendToMongoDB(String message,BuildContext context) async {
    final user=Provider.of<UserProvider>(context,listen: false).user;
@@ -63,10 +65,54 @@ class MessageService {
       print('Error sending SMS: $e');
     }
   }
+ 
 
-  Future<List<String>> _fetchPhoneNumbers() async {
-    // Replace this method with actual code to fetch phone numbers from MongoDB
-    // For demonstration purposes, returning a dummy list of phone numbers
-    return ['+919032044420', ];
+
+
+ Future<List<String>> _fetchPhoneNumbers() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$uri/phone-numbers'), // Update this URI with your actual server URL
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      List<String> phoneNumbers = List<String>.from(data['phoneNumbers']);
+      return phoneNumbers;
+    } else {
+      print('Failed to fetch phone numbers. Status code: ${response.statusCode}');
+      return [];
+    }
+  } catch (e) {
+    print('Error fetching phone numbers: $e');
+    return [];
   }
+}
+
+
+
+
+Future<List<Message>> fetchMessages() async {
+  final response = await http.get(
+    Uri.parse('$uri/messages'), // Replace with your actual API URL
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    List<Message> messages = (data['messages'] as List)
+        .map((message) => Message.fromJson(message))
+        .toList();
+    return messages;
+  } else {
+    throw Exception('Failed to load messages');
+  }
+}
+
+
 }

@@ -78,7 +78,7 @@ class AuthScreen extends StatelessWidget {
                       minWidth: double.infinity,
                       height: 60,
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
+                      Navigator.pushNamed(context, SignupPage.routeName);
                       },
                       color: Colors.yellow,
                       elevation: 0,

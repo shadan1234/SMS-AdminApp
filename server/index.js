@@ -4,6 +4,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const auth=require("./routes/auth");
 const authRouter = require("./routes/auth");
+const phoneRouter=require("./routes/phone");
+const messageRouter=require("./routes/message");
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +24,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(authRouter);
+app.use(messageRouter);
+app.use(phoneRouter);
 
 
 mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
