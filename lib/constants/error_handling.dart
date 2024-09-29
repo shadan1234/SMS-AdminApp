@@ -14,8 +14,8 @@ void httpErrorHandle({required http.Response response,required BuildContext cont
     showSnackBar(context, jsonDecode(response.body)['message']);
     break;
     case 500:
-     showSnackBar(context, jsonDecode(response.body)['error']);
-     break;
+     showSnackBar(context, jsonDecode(response.body)['message']);
+     break; 
      default:
      showSnackBar(context, response.body);
   }
