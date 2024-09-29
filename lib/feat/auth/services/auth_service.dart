@@ -65,7 +65,7 @@ class AuthService {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-           print(res.body);
+          //  print(res.body);
       httpErrorHandle(
         response: res,
         context: context,
@@ -139,7 +139,7 @@ Future<void> fetchUserData(BuildContext context) async {
       },
     );
 
-    print("User data response: ${userRes.body}");
+    // print("User data response: ${userRes.body}");
     
     if (userRes.statusCode == 200) {
       var userProvider = Provider.of<UserProvider>(context, listen: false);

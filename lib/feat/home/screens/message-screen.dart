@@ -26,8 +26,7 @@ class _MessageScreenState extends State<MessageScreen> {
   Future<void> _loadMessages() async {
     try {
       final messages = await _messageService.fetchMessages();
-      // Sort messages by timestamp
-      messages.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
+     
       setState(() {
         _messages = messages;
         _isLoading = false;

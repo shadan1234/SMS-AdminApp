@@ -44,7 +44,7 @@ class _BottomBarState extends State<BottomBar> {
               color: Colors.white,
             ),
             Icon(
-              Icons.explore,
+              Icons.logout_outlined,
               size: 26,
               color: Colors.white,
             ),

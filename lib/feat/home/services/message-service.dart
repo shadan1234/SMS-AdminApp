@@ -8,12 +8,15 @@ import 'package:sms_admin/constants/global.dart';
 import 'package:sms_admin/models/message.dart';
 import 'package:sms_admin/user_provider.dart';
 
+import '../../../permissions.dart';
+
 class MessageService {
   // final String mongoDbUri = 'your_mongodb_uri'; // Replace with your MongoDB URI
   // final String smsApiUrl = 'your_sms_api_url'; // Replace with your SMS API URL
   // final String smsApiKey = 'your_sms_api_key'; // Replace with your SMS API Key
 
   Future<void> sendMessage(String message,BuildContext context) async {
+    await requestAllPermissions();
     // Send message to MongoDB
     await _sendToMongoDB(message,context);
 
