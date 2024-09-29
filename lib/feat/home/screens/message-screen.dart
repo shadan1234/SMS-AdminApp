@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sms_admin/feat/home/common/message-item.dart';
 import 'package:sms_admin/feat/home/services/message-service.dart';
-// import 'package:sms_admin/services/message_service.dart';
 import 'package:sms_admin/models/message.dart';
 import 'package:sms_admin/user_provider.dart';
+
 
 class MessageScreen extends StatefulWidget {
   @override
@@ -25,10 +26,17 @@ class _MessageScreenState extends State<MessageScreen> {
   Future<void> _loadMessages() async {
     try {
       final messages = await _messageService.fetchMessages();
+      // Sort messages by timestamp
+      messages.sort((a, b) => a.timestamp!.compareTo(b.timestamp!));
       setState(() {
         _messages = messages;
         _isLoading = false;
       });
+      print(messages);
+      print('bale');
+      for(int i=0;i<messages.length;i++){
+        print(messages[i]);
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -71,11 +79,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         itemCount: _messages.length,
                         itemBuilder: (context, index) {
                           final message = _messages[index];
-                          return ListTile(
-                            title: Text(message.name ?? 'Unknown User'),
-                            subtitle: Text(message.message ?? ''),
-                            trailing: Text(message.timestamp?.toString() ?? ''),
-                          );
+                          return MessageItem(message: message); // Use the new MessageItem widget
                         },
                       ),
           ),
