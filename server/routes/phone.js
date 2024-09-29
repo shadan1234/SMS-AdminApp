@@ -2,7 +2,7 @@
 
 const express = require('express');
 const PhoneRouter = express.Router();
-const PhoneNumber = require('../models/phoneNumber');
+const PhoneNumber = require('../models/phone');
 
 // GET: Fetch all phone numbers
 PhoneRouter.get('/phone-numbers', async (req, res) => {
